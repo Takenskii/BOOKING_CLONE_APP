@@ -19,7 +19,6 @@ def login_page(request):
             messages.warning(request, "No Account Found")
             return redirect('/accounts/register/')
         
-
         if not hotel_user[0].is_verified:
             messages.warning(request, "Account not verified")
             return redirect('/accounts/login/')
@@ -43,14 +42,13 @@ def register_page(request):
         password = request.POST.get('password')
         phone_number = request.POST.get('phone_number')
 
-
         hotel_user = HotelUser.objects.filter(
             Q(email = email) | Q(phone_number = phone_number)
         )
 
         if hotel_user.exists():
-            messages.warning(request, "Account exists with Email or Phone number")
-            return redirect('/accounts/register/')
+            messages.warning(request, "Account already exists with Email or Phone number")
+            return redirect('/accounts/login/')
         
         hotel_user = HotelUser.objects.create(
             username = phone_number,
@@ -70,7 +68,6 @@ def register_page(request):
         messages.success(request, "Registration confirmation was sent to your Email")
         return redirect('/accounts/register/')
     
-
     return render(request, 'register.html')
 
 def verify_email_token(request, token):

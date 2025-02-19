@@ -7,7 +7,8 @@
     <div class="col-6 mx-auto card shadow p-4" style="border:none">
         <form method="POST">
           {% csrf_token %}
-          
+          {% include "utils/alerts.html" %}
+
           <div class="mb-3">
             <label for="email" class="form-label">Email address</label>
             <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp">
