@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
-from .models import HotelUser
+from .models import HotelUser, HotelVendor
 from django.db.models import Q
 from django.contrib import messages
 from .utils import generateRandomToken, sendEmailToken, sendOTPtoEmail
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 import random
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 
 def login_page(request):
@@ -107,3 +109,74 @@ def verify_otp(request, email):
         return redirect('/accounts/login/')
     
     return render(request, 'verify_otp.html')
+
+def login_vendor(request):
+
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        hotel_vendor_user = HotelVendor.objects.filter(email = email) 
+
+        if not hotel_vendor_user.exists():
+            messages.warning(request, "No Account Found")
+            return redirect('/accounts/register-vendor/')
+        
+        if not hotel_vendor_user[0].is_verified:
+            messages.warning(request, "Account not verified")
+            return redirect('/accounts/login-vendor/')
+
+        hotel_vendor_user = authenticate(username=hotel_vendor_user[0].username, password = password)
+
+        if hotel_vendor_user:
+            messages.success(request, "Login Success")
+            login(request, hotel_vendor_user)
+            return redirect('/accounts/dashboard/')
+        messages.warning(request, "Invalid Credentials")
+        return redirect('/accounts/login-vendor/')
+
+    return render(request, 'vendor/login_vendor.html')    
+
+def register_vendor(request):
+
+    if request.method == "POST":
+
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        business_name = request.POST.get('business_name')
+        email_address = request.POST.get('email')
+        phone_number  = request.POST.get('phone_number')
+        password = request.POST.get('password')
+
+        hotel_vendor_user = HotelVendor.objects.filter(
+            Q(email = email_address) | Q(phone_number = phone_number)
+        )
+
+        if hotel_vendor_user.exists():
+            messages.error(request, "Account exists with Email or Phone number")
+            return redirect('/accounts/register-vendor/')
+
+        hotel_vendor_user = HotelVendor.objects.create(
+            username = phone_number,
+            first_name = first_name,
+            last_name = last_name,
+            business_name = business_name,
+            email = email_address,
+            phone_number = phone_number,
+            email_token = generateRandomToken()
+        )
+
+        hotel_vendor_user.set_password(password)
+        hotel_vendor_user.save()
+
+        sendEmailToken(email_address, hotel_vendor_user.email_token)
+
+        messages.success(request, "Registration confirmation was sent to your Email")
+        return redirect('/accounts/register-vendor/')
+    
+    return render(request, 'vendor/register_vendor.html')
+
+@login_required(login_url='login_vendor')
+def dashboard(request):
+    return render(request, 'vendor/vendor_dashboard.html')
+
