@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import HotelUser, HotelVendor
+from .models import HotelUser, HotelVendor, Hotel, Amenities, User, HotelImages
 from django.db.models import Q
 from django.contrib import messages
 from .utils import generateRandomToken, sendEmailToken, sendOTPtoEmail
@@ -7,6 +7,9 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 import random
 from django.contrib.auth.decorators import login_required
+from .utils import generateSlug
+from django.http import HttpResponseRedirect
+
 
 # Create your views here.
 
@@ -178,5 +181,64 @@ def register_vendor(request):
 
 @login_required(login_url='login_vendor')
 def dashboard(request):
-    return render(request, 'vendor/vendor_dashboard.html')
+    context = {'hotels': Hotel.objects.filter(hotel_owner = request.user)}
+    return render(request, 'vendor/vendor_dashboard.html', context)
 
+@login_required(login_url='login_vendor')
+def add_hotel(request):
+    if request.method == "POST":
+
+        hotel_name = request.POST.get('hotel_name')
+        hotel_description = request.POST.get('hotel_description')
+        amenities = request.POST.getlist('amenities')
+        hotel_price = request.POST.get('hotel_price')
+        hotel_offer_price = request.POST.get('hotel_offer_price')
+        hotel_location = request.POST.get('hotel_location')
+        hotel_slug = generateSlug(hotel_name)
+
+        hotel_vendor = HotelVendor.objects.get(id = request.user.id)
+
+        hotel_object = Hotel.objects.create(
+            hotel_name = hotel_name,
+            hotel_description = hotel_description,
+            hotel_price = hotel_price,
+            hotel_offer_price = hotel_offer_price,
+            hotel_location = hotel_location,
+            hotel_slug = hotel_slug,
+            hotel_owner = hotel_vendor
+        )
+
+        for amenity in amenities:
+            amenity = Amenities.objects.get(id = amenity)
+            hotel_object.amenities.add(amenity)
+            hotel_object.save()
+            
+        messages.success(request, "Hotel Created")
+        return redirect('/accounts/add-hotel/')
+    
+    amenities = Amenities.objects.all()
+    
+    context = {'amenities': amenities}
+
+    return render(request, 'vendor/add_hotel.html', context)
+
+@login_required(login_url='login_vendor')
+def upload_images(request, slug):
+    hotel_object = Hotel.objects.get(hotel_slug = slug)
+    if request.method == "POST":
+        image = request.FILES['image']
+        # print(image)
+        HotelImages.objects.create(
+            hotel = hotel_object,
+            image = image
+        )
+
+        return HttpResponseRedirect(request.path_info)
+    return render(request, 'vendor/upload_images.html', context = {'images' : hotel_object.hotel_images.all()})
+
+@login_required(login_url='login_vendor')
+def delete_images(request, id):
+    hotel_image = HotelImages.objects.get(id = id)
+    hotel_image.delete()
+    messages.success(request, "Image Deleted")
+    return redirect('/accounts/dashboard/')
