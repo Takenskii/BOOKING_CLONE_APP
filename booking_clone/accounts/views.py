@@ -4,12 +4,11 @@ from django.db.models import Q
 from django.contrib import messages
 from .utils import generateRandomToken, sendEmailToken, sendOTPtoEmail
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 import random
 from django.contrib.auth.decorators import login_required
 from .utils import generateSlug
 from django.http import HttpResponseRedirect
-
 
 # Create your views here.
 
@@ -242,3 +241,36 @@ def delete_images(request, id):
     hotel_image.delete()
     messages.success(request, "Image Deleted")
     return redirect('/accounts/dashboard/')
+
+@login_required(login_url='login_vendor')
+def edit_hotel(request, slug):
+    hotel_object = Hotel.objects.get(hotel_slug = slug)
+    if request.user.id != hotel_object.hotel_owner.id:
+        return HttpResponse("You are not authorized")
+    
+    if request.method == "POST":
+        hotel_name = request.POST.get('hotel_name')
+        hotel_description = request.POST.get('hotel_description')
+        hotel_price = request.POST.get('hotel_price')
+        hotel_offer_price = request.POST.get('hotel_offer_price')
+        hotel_location = request.POST.get('hotel_location')
+
+        hotel_object.hotel_name = hotel_name
+        hotel_object.hotel_description = hotel_description
+        hotel_object.hotel_price = hotel_price
+        hotel_object.hotel_offer_price = hotel_offer_price
+        hotel_object.hotel_location = hotel_location
+        hotel_object.save()
+        messages.success(request, "Hotel Details Updated")
+
+        return HttpResponseRedirect(request.path_info)
+    
+    amenities = Amenities.objects.all()
+
+    return render(request, 'vendor/edit_hotel.html', context = {'hotel':hotel_object, 'amenities':amenities})
+
+def logout(request):
+    logout(request)
+    return redirect('login_vendor')
+
+    

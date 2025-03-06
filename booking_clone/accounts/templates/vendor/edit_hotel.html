@@ -1,0 +1,58 @@
+{% extends "utils/vendor_base.html" %}
+
+{% block start %}
+
+<div class="container mt-5 pt-5 pb-5">
+
+  <div class="col-6 mx-auto card shadow p-4" style="border:none">
+    <h2>Edit Hotel</h2>
+      <form method="POST">
+        {% include "utils/alerts.html" %}
+        {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Hotel Name</label>
+            <input id="hotel_name" type="text" value="{{hotel.hotel_name}}" name="hotel_name" class="form-control" id="exampleInputEmail1" aria-describedby="hotelname">
+          </div>
+
+          <div class="mb-3">
+          <div class="form-floating">
+            <textarea name="hotel_description" class="form-control" 
+            placeholder="Leave a comment here" id="floatingTextarea">{{hotel.hotel_description}}</textarea>
+            <label for="floatingTextarea">Hotel Description</label>
+          </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="amenitiesSelect" class="form-label">Hotel Amenities</label>
+            <select name="amenities" id="amenitiesSelect" class="form-select form-select-sm" multiple aria-label="Select amenities">
+              <option value="" disabled selected>Select amenities</option>
+              {% for amenity in amenities %}
+                <option value="{{ amenity.id }}" {% if amenity in hotel.amenities.all %} selected {% endif %}>
+                  {{amenity.amenities_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Hotel Price</label>
+            <input id="hotel_price" type="number" value="{{hotel.hotel_price}}" name="hotel_price" class="form-control" id="exampleInputEmail1" aria-describedby="hotelname">
+          </div>
+
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Hotel Offer Price</label>
+            <input id="hotel_offer_price" type="number" name="hotel_offer_price" class="form-control" id="exampleInputEmail1" aria-describedby="hotelname">
+          </div>
+
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Hotel Location</label>
+            <input id="hotel_location" type="text" value="{{hotel.hotel_location}}" name="hotel_location" class="form-control" id="exampleInputEmail1" aria-describedby="hotelname">
+          </div>
+
+          <button type="submit" class="btn btn-primary">Submit</button>
+
+        </form>
+        
+  </div>
+
+{% endblock %}

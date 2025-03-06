@@ -2,59 +2,62 @@
 
 {% block start %}
 
-
 <div class="container mt-5 pt-5 pb-5">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card shadow" style="width: 18rem;">
-                <img src="https://cdn.britannica.com/96/115096-050-5AFDAF5D/Bellagio-Hotel-Casino-Las-Vegas.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="btn btn-primary">Go somewhere</a>
-                  <span class="badge text-bg-primary">Swimming pool</span>
-                </div>
-              </div>
-        </div>
 
-        <div class="col-md-3">
-            <div class="card shadow" style="width: 18rem;">
-                <img src="https://cdn.britannica.com/96/115096-050-5AFDAF5D/Bellagio-Hotel-Casino-Las-Vegas.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="btn btn-primary">Go somewhere</a>
-                  <span class="badge text-bg-primary">Swimming pool</span>
-                </div>
-              </div>
-        </div>
+  <!-- Search Form -->
+  <div class="col-md-6 mx-auto">
+    <form class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Search">
+      <select class="form-select">
+        <option>Choose</option>
+        <option value="sort_low">Sort by Low to High</option>
+        <option value="sort_high">Sort by High to Low</option>
+      </select>
+      <button type="submit" class="btn btn-warning">Search</button>
+    </form>
+  </div>
 
-        <div class="col-md-3">
-            <div class="card shadow" style="width: 18rem;">
-                <img src="https://cdn.britannica.com/96/115096-050-5AFDAF5D/Bellagio-Hotel-Casino-Las-Vegas.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="btn btn-primary">Go somewhere</a>
-                  <span class="badge text-bg-primary">Swimming pool</span>
-                </div>
-              </div>
-        </div>
+  <!-- Hotel Listings -->
+  <div class="row">
+    {% for hotel in hotels %}
+      <div class="col-md-3 mt-3">
+        <div class="card shadow h-100">
+          <a href="{% url 'hotel_details' hotel.hotel_slug %}" class="text-decoration-none">
+            
+            <!-- Image -->
+            {% if hotel.hotel_images.first %}
+              <img src="{{ hotel.hotel_images.first.image.url }}" class="card-img-top" alt="Hotel Image">
+            {% else %}
+              <img src="https://via.placeholder.com/300?text=No+Image" class="card-img-top" alt="No Image">
+            {% endif %}
 
-        <div class="col-md-3">
-            <div class="card shadow" style="width: 18rem;">
-                <img src="https://cdn.britannica.com/96/115096-050-5AFDAF5D/Bellagio-Hotel-Casino-Las-Vegas.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Card title</h5>
-                  <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                  <a href="#" class="btn btn-primary">Go somewhere</a>
-                  <span class="badge text-bg-primary">Swimming pool</span>
-                </div>
-              </div>
-        </div>
+            <div class="card-body">
+              <h5 class="card-title text-primary">{{ hotel.hotel_name }}</h5>
 
-    </div>
+              <!-- Pricing -->
+              <p class="mb-1">
+                Price: <span class="badge bg-danger">{{ hotel.hotel_price }}</span>
+              </p>
+              <p>
+                Offer Price: <span class="badge bg-success">{{ hotel.hotel_offer_price }}</span>
+              </p>
+
+              <hr>
+              <p class="text-muted">{{ hotel.hotel_location }}</p>
+
+              <!-- Buttons -->
+              <div class="d-flex justify-content-between">
+                <a href="{% url 'hotel_details' hotel.hotel_slug %}" class="btn btn-primary">View Details</a>
+                <span class="badge bg-info">Swimming Pool</span>
+              </div>
+
+            </div>
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
 </div>
-
 
 {% endblock %}
