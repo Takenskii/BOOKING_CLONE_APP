@@ -3,32 +3,46 @@
 {% block start %}
 
 <div class="container">
-<div class="card-body mt-5">
-    <h5 class="card-title">{{hotel.hotel_name}}</h5>
-    Price <span class="badge text-bg-danger">{{hotel.hotel_price}}</span>
-    Hotel Offer Price <span class="badge text-bg-success">{{hotel.hotel_offer_price}}</span>
+  <div class="card-body mt-5">
+    <h5 class="card-title">{{ hotel.hotel_name }}</h5>
+    Price <span class="badge text-bg-danger">{{ hotel.hotel_price }}</span>
+    Hotel Offer Price <span class="badge text-bg-success">{{ hotel.hotel_offer_price }}</span>
     <hr>
-    <p>{{hotel.hotel_location}}</p>
+    <p>{{ hotel.hotel_location }}</p>
     <a href="#" class="btn btn-primary">Go somewhere</a>
     <span class="badge text-bg-primary">Swimming pool</span>
 
-    <p class="mt-5">{{hotel.hotel_description}}</p>
-
+    <p class="mt-5">{{ hotel.hotel_description }}</p>
 
     <div class="row">
-        {% for image in hotel.hotel_images.all %}
-        <div class="col-2">
-            <img src="/media/{{image.image}}" style="height: 150px;">
+      {% for image in hotel.hotel_images.all %}
+      <div class="col-2">
+        <img src="/media/{{ image.image }}" style="height: 150px;">
+      </div>
+      {% endfor %}
+
+      {% if request.user.is_authenticated %}
+      <form method="POST">
+        {% csrf_token %}
+        {% include "utils/alerts.html" %}
+
+        <div class="mb-3">
+          <label for="start_date" class="form-label">Start Date</label>
+          <input type="date" name="start_date" class="form-control" id="start_date" aria-describedby="emailHelp">
         </div>
-        {% endfor %}
 
-    <button class="btn btn-danger mt-5"> Book now </button>
+        <div class="mb-3">
+          <label for="end_date" class="form-label">End Date</label>
+          <input type="date" name="end_date" class="form-control" id="end_date" aria-describedby="emailHelp">
+        </div>
 
+        <button type="submit" class="btn btn-danger mt-5">Book now</button>
+      </form>
+      {% else %}
+      <a href="{% url 'login_page' %}" class="btn btn-success">Login</a>
+      {% endif %}
+    </div>
   </div>
 </div>
-</div>
-</div>
-
-
 
 {% endblock %}
