@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from .utils import generateSlug
 from django.http import HttpResponseRedirect
 
+
 # Create your views here.
 
 def login_page(request):

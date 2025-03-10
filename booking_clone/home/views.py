@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponseRedirect
 from django.contrib import messages
 from accounts.models import *
+from django.views.decorators.cache import cache_page
+
 # Create your views here.
 
+@cache_page(60 * 15)
 def index(request):
     hotels = Hotel.objects.all()
     if request.GET.get('search'):
